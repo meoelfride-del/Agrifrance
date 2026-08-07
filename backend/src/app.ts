@@ -1,0 +1,29 @@
+import express from "express";
+import helmet from "helmet";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import { rateLimit } from "express-rate-limit";
+import { ZodError } from "zod";
+import { env } from "./config.js";
+import { authRouter } from "./routes/auth.js";
+import { catalogRouter, partsRouter } from "./routes/catalog.js";
+import { quoteRouter } from "./routes/quotes.js";
+
+export const app=express();
+app.disable("x-powered-by");
+app.set("trust proxy",1);
+app.use(helmet({ contentSecurityPolicy:true, crossOriginResourcePolicy:{policy:"same-site"} }));
+app.use(cors({ origin:env.FRONTEND_URL,credentials:true,methods:["GET","POST","PUT","PATCH","DELETE"] }));
+app.use(express.json({limit:"1mb"})); app.use(cookieParser());
+app.use("/api/auth",rateLimit({windowMs:15*60*1000,limit:20,standardHeaders:true,legacyHeaders:false}),authRouter);
+app.use("/api/quotes",rateLimit({windowMs:60*60*1000,limit:30,standardHeaders:true,legacyHeaders:false}),quoteRouter);
+app.use("/api/products",catalogRouter);
+app.use("/api/parts",partsRouter);
+app.get("/api/health",(_req,res)=>res.json({status:"ok",service:"agriforce-api"}));
+app.use((req,res)=>res.status(404).json({error:`Route inconnue: ${req.method} ${req.path}`}));
+app.use((error:unknown,_req:express.Request,res:express.Response,_next:express.NextFunction)=>{
+  void _next;
+  if(error instanceof ZodError)return res.status(400).json({error:"Données invalides",details:error.issues.map(i=>({path:i.path.join("."),message:i.message}))});
+  console.error(error);
+  return res.status(500).json({error:"Erreur interne"});
+});
