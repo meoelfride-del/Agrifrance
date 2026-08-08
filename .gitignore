@@ -44,7 +44,11 @@ next-env.d.ts
 /dist/
 /.wrangler/
 /.sites-runtime/
+/.vinext/
 /outputs/
 /work/
+/artifacts/
+/.chrome*/
+/.sites-runtime/
 
 .vercel

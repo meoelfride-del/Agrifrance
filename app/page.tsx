@@ -1,5 +1,5 @@
-import Platform from "./platform";
+import { HomePage } from "@/src/views/HomePage";
 
 export default function Home() {
-  return <Platform view="home" />;
+  return <HomePage />;
 }
