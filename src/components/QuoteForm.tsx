@@ -13,8 +13,10 @@ export function QuoteForm({ initialProduct = "" }: { initialProduct?: string }) 
   const [errors, setErrors] = useState<Record<string,string>>({});
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [reference, setReference] = useState("");
+  const [submitError, setSubmitError] = useState("");
   const set = (key:keyof QuoteValues, value:string|boolean) => setValues((current) => ({ ...current, [key]: value }));
-  const submit = (event: FormEvent) => {
+  const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (sending) return;
     const next: Record<string,string> = {};
@@ -24,9 +26,35 @@ export function QuoteForm({ initialProduct = "" }: { initialProduct?: string }) 
     setErrors(next);
     if (Object.keys(next).length) return;
     setSending(true);
-    window.setTimeout(() => { setSending(false); setSent(true); setValues({ ...initialValues, product: initialProduct }); }, 700);
+    setSubmitError("");
+    const product = products.find((item) => item.id === values.product);
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000"}/api/quotes`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          productSlug: product?.slug ?? values.product,
+          companyName: values.name,
+          contactName: values.name,
+          email: values.email,
+          phone: values.phone,
+          surfaceHectares: 0,
+          message: values.message,
+          configuration: { country: values.country, quantity: values.quantity, budget: values.budget, preferredContact: values.contact },
+        }),
+      });
+      const payload = await response.json().catch(() => ({})) as { reference?: string; error?: string };
+      if (!response.ok) throw new Error(payload.error ?? "La demande n’a pas pu être enregistrée.");
+      setReference(payload.reference ?? "");
+      setSent(true);
+      setValues({ ...initialValues, product: initialProduct });
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : "Service temporairement indisponible.");
+    } finally {
+      setSending(false);
+    }
   };
-  if (sent) return <div className="form-success" role="status"><strong>✓</strong><h2>{t("common.success")}</h2><button className="button button-secondary" onClick={() => setSent(false)}>{t("common.continue")}</button></div>;
+  if (sent) return <div className="form-success" role="status"><strong>✓</strong><h2>{t("common.success")}</h2>{reference ? <p>Référence : {reference}</p> : null}<button className="button button-secondary" onClick={() => setSent(false)}>{t("common.continue")}</button></div>;
   return <form className="quote-form-new" onSubmit={submit} noValidate><div className="form-grid">
     <Field label={t("quote.name")} error={errors.name}><input value={values.name} onChange={(event) => set("name",event.target.value)} autoComplete="name"/></Field>
     <Field label={t("quote.phone")} error={errors.phone}><input value={values.phone} onChange={(event) => set("phone",event.target.value)} autoComplete="tel" inputMode="tel"/></Field>
@@ -38,6 +66,7 @@ export function QuoteForm({ initialProduct = "" }: { initialProduct?: string }) 
     <Field label={t("quote.contact")}><select value={values.contact} onChange={(event) => set("contact",event.target.value)}><option>{t("quote.whatsapp")}</option><option>{t("quote.phoneContact")}</option><option>{t("quote.emailContact")}</option></select></Field>
   </div><Field label={t("quote.message")}><textarea rows={5} value={values.message} onChange={(event) => set("message",event.target.value)}/></Field>
   <label className="privacy-check"><input type="checkbox" checked={values.privacy} onChange={(event) => set("privacy",event.target.checked)}/><span>{t("quote.privacy")}{errors.privacy ? <small role="alert">{errors.privacy}</small> : null}</span></label>
+  {submitError ? <p className="form-error" role="alert">{submitError}</p> : null}
   <button className="button button-primary form-submit" type="submit" disabled={sending}>{sending ? t("quote.duplicate") : t("common.send")}</button></form>;
 }
 

@@ -57,7 +57,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const value = useMemo<CartContextValue>(() => {
     const items = storedItems.flatMap((item) => { const product = productById(item.productId); return product ? [{ ...item, product }] : []; });
     const count = items.reduce((sum, item) => sum + item.quantity, 0);
-    const subtotal = items.reduce((sum, item) => sum + item.product.prix * item.quantity, 0);
+    const subtotal = items.reduce((sum, item) => sum + (item.product.prix ?? 0) * item.quantity, 0);
     const shipping = subtotal ? Math.max(450, Math.round(subtotal * 0.025)) : 0;
     return { items, count, subtotal, shipping, total: subtotal + shipping, isOpen, setOpen, addItem, removeItem, updateQuantity, clear };
   }, [addItem, clear, isOpen, removeItem, storedItems, updateQuantity]);

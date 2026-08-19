@@ -20,13 +20,14 @@
     "test:rendered": "node --test tests/rendered-html.test.mjs",
     "test:e2e": "node tests/e2e-commerce.mjs",
     "validate:artifact": "bash scripts/validate-artifact.sh",
-    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
+    "lint": "eslint . --ignore-pattern dist --ignore-pattern backend/dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate"
+    ,"export:prices": "node scripts/export-price-register.mjs"
   },
   "dependencies": {
     "drizzle-orm": "0.45.2",
     "i18next": "^26.3.6",
-    "next": "16.2.6",
+    "next": "16.3.1",
     "react": "19.2.6",
     "react-dom": "19.2.6",
     "react-i18next": "^17.0.11"
@@ -41,7 +42,7 @@
     "@vitejs/plugin-rsc": "0.5.26",
     "drizzle-kit": "0.31.10",
     "eslint": "9.39.4",
-    "eslint-config-next": "16.2.6",
+    "eslint-config-next": "16.3.1",
     "puppeteer-core": "^25.5.0",
     "react-server-dom-webpack": "19.2.6",
     "tailwindcss": "4.2.1",

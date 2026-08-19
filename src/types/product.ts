@@ -2,6 +2,7 @@ export type ProductImage = {
   src: string;
   alt: string;
   view: "principale" | "avant" | "laterale" | "cabine";
+  illustration: boolean;
 };
 
 export type Product = {
@@ -12,9 +13,13 @@ export type Product = {
   modele: string;
   categorie: string;
   categorySlug: string;
-  prix: number;
-  ancienPrix: number;
+  prix: number | null;
+  ancienPrix: number | null;
   devise: "EUR";
+  taxIncluded: boolean | null;
+  priceSource: string | null;
+  priceCheckedAt: string | null;
+  priceLabel: "sur_devis" | "prix_catalogue" | "prix_verifie";
   puissance: string;
   powerValue: number;
   annee: number;

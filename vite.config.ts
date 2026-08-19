@@ -23,6 +23,10 @@ export default defineConfig(async () => {
   const localBindingConfig = {
     main: "./worker/index.ts",
     compatibility_flags: ["nodejs_compat"],
+    assets: {
+      directory: "./public",
+      binding: "ASSETS",
+    },
     d1_databases: d1
       ? [
           {

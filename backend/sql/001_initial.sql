@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS products (
 CREATE INDEX IF NOT EXISTS products_filter_idx ON products(engine_power_hp,transmission_type,condition);
 CREATE TABLE IF NOT EXISTS quotes (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(), reference varchar(32) UNIQUE NOT NULL DEFAULT ('DV-'||to_char(now(),'YYYY')||'-'||upper(substr(encode(gen_random_bytes(4),'hex'),1,8))),
-  user_id uuid NOT NULL REFERENCES users(id), company_id uuid REFERENCES companies(id), product_slug varchar(180) NOT NULL,
+  user_id uuid REFERENCES users(id), company_id uuid REFERENCES companies(id), product_slug varchar(180) NOT NULL,
   company_name varchar(160) NOT NULL, contact_name varchar(120) NOT NULL, email varchar(255) NOT NULL, phone varchar(30) NOT NULL,
   surface_hectares numeric(12,2) NOT NULL, message text NOT NULL DEFAULT '', configuration jsonb NOT NULL DEFAULT '{}',
   total_cents bigint, currency char(3) NOT NULL DEFAULT 'EUR', status varchar(30) NOT NULL DEFAULT 'submitted', created_at timestamptz NOT NULL DEFAULT now()

@@ -14,8 +14,8 @@ export function CartDrawer() {
   const locale = i18n.resolvedLanguage ?? "fr";
   const message = [
     "Bonjour AgriFrance, je souhaite commander :",
-    ...cart.items.map((item) => `- ${item.product.nom} × ${item.quantity} : ${formatPrice(item.product.prix * item.quantity, locale)}`),
-    `Total estimé : ${formatPrice(cart.total, locale)}`,
+    ...cart.items.map((item) => `- ${item.product.nom} × ${item.quantity} : ${item.product.prix === null ? "prix sur devis" : formatPrice(item.product.prix * item.quantity, locale)}`),
+    `Montant : ${cart.items.some((item) => item.product.prix === null) ? "à confirmer par devis" : formatPrice(cart.total, locale)}`,
     `Client : ${customer.name || "À préciser"}`,
     `Pays : ${customer.country}`,
     `Téléphone : ${customer.phone || "À préciser"}`,
@@ -34,9 +34,9 @@ export function CartDrawer() {
         </article>)}
       </div>
       {cart.items.length ? <div className="cart-summary">
-        <p><span>{t("common.subtotal")}</span><b>{formatPrice(cart.subtotal, locale)}</b></p>
-        <p><span>{t("common.shipping")}</span><b>{formatPrice(cart.shipping, locale)}</b></p>
-        <p className="cart-total"><span>{t("common.total")}</span><b>{formatPrice(cart.total, locale)}</b></p>
+        <p><span>{t("common.subtotal")}</span><b>{cart.items.some((item) => item.product.prix === null) ? "Sur devis" : formatPrice(cart.subtotal, locale)}</b></p>
+        <p><span>{t("common.shipping")}</span><b>À confirmer</b></p>
+        <p className="cart-total"><span>{t("common.total")}</span><b>Devis personnalisé</b></p>
         <div className="cart-customer">
           <input aria-label={t("cart.name")} placeholder={t("cart.name")} value={customer.name} onChange={(event) => setCustomer({ ...customer, name: event.target.value })}/>
           <input aria-label={t("cart.phone")} placeholder={t("cart.phone")} value={customer.phone} onChange={(event) => setCustomer({ ...customer, phone: event.target.value })}/>

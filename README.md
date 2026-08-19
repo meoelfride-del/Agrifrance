@@ -39,6 +39,19 @@ npm install
 npm run dev
 ```
 
+Le backend PostgreSQL se lance dans un second terminal :
+
+```powershell
+Copy-Item backend\.env.example backend\.env
+npm --prefix backend install
+npm --prefix backend run db:migrate
+npm run dev:backend
+```
+
+Copiez également `.env.example` vers `.env.local` et adaptez `NEXT_PUBLIC_API_URL` si l’API n’écoute pas sur le port 4000.
+
+Documents de contrôle : `AUDIT_REPORT.md`, `IMAGE_SOURCES.md`, `PRICE_SOURCES.md`, `TEST_REPORT.md` et `DYNAMIC_ROADMAP.md`.
+
 Contrôles disponibles :
 
 ```powershell
