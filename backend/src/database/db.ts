@@ -3,8 +3,7 @@ import { env } from "../config.js";
 
 export const pool = new pg.Pool({
   connectionString: env.DATABASE_URL,
-  max: 20,
-  ssl: env.NODE_ENV === "production" ? { rejectUnauthorized: true } : undefined
+  max: env.NODE_ENV === "production" ? 10 : 20
 });
 
 export async function query<T extends pg.QueryResultRow>(text: string, values: unknown[] = []) {
