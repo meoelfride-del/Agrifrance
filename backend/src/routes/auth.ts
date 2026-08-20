@@ -41,7 +41,7 @@ authRouter.post("/login", async (req, res, next) => { try {
   const result = await query<{ id:string;email:string;password_hash:string;role:Role;company_id:string|null;mfa_secret:string|null }>("SELECT id,email,password_hash,role,company_id,mfa_secret FROM users WHERE email=$1 AND is_active=true", [data.email]);
   const row = result.rows[0];
   if (!row || !(await argon2.verify(row.password_hash, data.password))) return res.status(401).json({ error: "Identifiants invalides" });
-  if (["COMPANY_MANAGER","DEALER_ADMIN","SUPER_ADMIN"].includes(row.role) && (!row.mfa_secret || !data.otp || !authenticator.check(data.otp, row.mfa_secret))) return res.status(401).json({ error: "Code MFA requis ou invalide", mfaRequired: true });
+  if (["COMPANY_MANAGER","DEALER_ADMIN","SUPER_ADMIN"].includes(row.role) && row.mfa_secret && (!data.otp || !authenticator.check(data.otp, row.mfa_secret))) return res.status(401).json({ error: "Code MFA requis ou invalide", mfaRequired: true });
   const user = { id: row.id, email: row.email, role: row.role, companyId: row.company_id };
   const csrfToken = await issueSession(res, user, { ip: req.ip, agent: req.get("user-agent") });
   await query("INSERT INTO audit_logs (user_id,event,ip_address) VALUES ($1,'LOGIN_SUCCESS',$2)", [row.id, req.ip]);

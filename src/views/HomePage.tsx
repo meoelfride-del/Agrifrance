@@ -6,9 +6,12 @@ import { useTranslation } from "react-i18next";
 import { AppShell } from "@/src/components/AppShell";
 import { ProductGrid } from "@/src/components/ProductGrid";
 import { PromotionSection } from "@/src/components/PromotionSection";
-import { featuredProducts, products } from "@/src/data/products";
+import { useProductCatalog } from "@/src/context/ProductCatalogContext";
+import type { Product } from "@/src/types/product";
 
 export function HomePage() {
+  const products = useProductCatalog();
+  const featuredProducts = products.slice(0, 8);
   const { t } = useTranslation();
   return <AppShell><section className="commerce-hero"><Image src="/tractor-hero.webp" alt="Tracteur agricole AgriFrance au travail" fill priority sizes="100vw"/><div className="commerce-hero-overlay"/><div className="commerce-hero-content"><span>{t("home.eyebrow")}</span><h1>{t("home.title")}</h1><p>{t("home.subtitle")}</p><div><Link className="button button-primary" href="/catalog">{t("home.primary")}</Link><Link className="button button-light" href="/quote-request">{t("home.secondary")}</Link></div><ul><li>300 {t("common.available").toLowerCase()}</li><li>10 catégories</li><li>SAV 6j/7</li></ul></div></section>
     <HomeCollection title={t("home.popular")} subtitle={t("home.whyText")} products={featuredProducts}/>
@@ -21,7 +24,7 @@ export function HomePage() {
   </AppShell>;
 }
 
-function HomeCollection({ title, subtitle, products }: { title:string; subtitle:string; products:typeof featuredProducts }) {
+function HomeCollection({ title, subtitle, products }: { title:string; subtitle:string; products:Product[] }) {
   return <section className="commerce-section"><div className="section-heading"><div><h2>{title}</h2><p>{subtitle}</p></div><Link href="/catalog">Voir tout →</Link></div><ProductGrid products={products.slice(0,4)}/></section>;
 }
 function Trust({ icon,title,text }:{icon:string;title:string;text:string}) { return <article><span>{icon}</span><h3>{title}</h3><p>{text}</p></article>; }

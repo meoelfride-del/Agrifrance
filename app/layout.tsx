@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import "./globals.css";
 import { AppProviders } from "@/src/components/AppProviders";
+import { getProducts } from "@/src/services/api";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://agrifrance.vercel.app"),
@@ -18,11 +19,12 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const storedLanguage = (await cookies()).get("agrifrance-language")?.value;
+  const products = await getProducts();
   const language = (["fr","en","es","de","pt"].includes(storedLanguage ?? "") ? storedLanguage : "fr") as "fr"|"en"|"es"|"de"|"pt";
   return (
     <html lang={language}>
       <body>
-        <AppProviders language={language}>{children}</AppProviders>
+        <AppProviders language={language} products={products}>{children}</AppProviders>
       </body>
     </html>
   );

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { AppShell } from "@/src/components/AppShell";
 
 type User = { email:string; role:string };
-const api=process.env.NEXT_PUBLIC_API_URL??"http://localhost:4000";
+const api=(process.env.NEXT_PUBLIC_API_URL??"https://agrifrance-api.onrender.com").replace(/\/$/,"");
 
 export function AccountPage(){
   const [mode,setMode]=useState<"login"|"register">("login"); const [form,setForm]=useState({name:"",email:"",password:""}); const [message,setMessage]=useState(""); const [user,setUser]=useState<User|null>(null); const [csrf,setCsrf]=useState(""); const [busy,setBusy]=useState(false);

@@ -2,12 +2,14 @@
 
 import { useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
-import { products } from "@/src/data/products";
+import { useProductCatalog } from "@/src/context/ProductCatalogContext";
+import { API_URL } from "@/src/services/api";
 
 type QuoteValues = { name:string; phone:string; email:string; country:string; product:string; quantity:string; budget:string; message:string; contact:string; privacy:boolean };
 const initialValues: QuoteValues = { name:"",phone:"",email:"",country:"Bénin",product:"",quantity:"1",budget:"",message:"",contact:"WhatsApp",privacy:false };
 
 export function QuoteForm({ initialProduct = "" }: { initialProduct?: string }) {
+  const products = useProductCatalog();
   const { t } = useTranslation();
   const [values, setValues] = useState({ ...initialValues, product: initialProduct });
   const [errors, setErrors] = useState<Record<string,string>>({});
@@ -29,7 +31,7 @@ export function QuoteForm({ initialProduct = "" }: { initialProduct?: string }) 
     setSubmitError("");
     const product = products.find((item) => item.id === values.product);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000"}/api/quotes`, {
+      const response = await fetch(`${API_URL}/api/quotes`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
