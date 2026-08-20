@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import "./globals.css";
+import "./customer.css";
 import { AppProviders } from "@/src/components/AppProviders";
 import { getProducts } from "@/src/services/api";
 

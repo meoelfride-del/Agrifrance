@@ -10,6 +10,7 @@ import { catalogRouter, partsRouter } from "./routes/catalog.js";
 import { quoteRouter } from "./routes/quotes.js";
 import { apiDashboardHtml, apiDashboardStyles } from "./api-dashboard.js";
 import { adminRouter } from "./routes/admin.js";
+import { customerRouter } from "./routes/customer.js";
 
 export const app=express();
 app.disable("x-powered-by");
@@ -22,6 +23,7 @@ app.use("/api/quotes",rateLimit({windowMs:60*60*1000,limit:30,standardHeaders:tr
 app.use("/api/products",catalogRouter);
 app.use("/api/parts",partsRouter);
 app.use("/api/admin",adminRouter);
+app.use("/api/customer",customerRouter);
 app.get("/favicon.ico",(_req,res)=>res.status(204).end());
 app.get("/dashboard.css",(_req,res)=>res.type("text/css").send(apiDashboardStyles));
 app.get("/",(_req,res)=>res.type("html").send(apiDashboardHtml()));
