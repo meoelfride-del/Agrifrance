@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { z } from "zod";
 import { query } from "../database/db.js";
-import { authenticate, authorize } from "../security/middleware.js";
+import { authenticate, authorize, requireCsrf } from "../security/middleware.js";
 import type { AuthRequest } from "../types.js";
 
 export const catalogRouter = Router();
@@ -52,13 +52,13 @@ catalogRouter.get("/:slug", async (req,res,next) => { try {
 } catch(error) { next(error); } });
 
 const adminProduct = z.object({ name:z.string().min(2).max(160), slug:z.string().regex(/^[a-z0-9-]+$/), brand:z.string().min(2).max(100), priceCents:z.number().int().nonnegative().nullable(), enginePowerHp:z.number().int().nonnegative(), transmissionType:z.string().max(80), condition:z.enum(["new","used"]), stockStatus:z.string().max(30), priceSource:z.string().url().nullable(), priceCheckedAt:z.string().datetime().nullable() });
-catalogRouter.post("/", authenticate, authorize("DEALER_ADMIN","SUPER_ADMIN"), async (req:AuthRequest,res,next) => { try {
+catalogRouter.post("/", authenticate, authorize("DEALER_ADMIN","SUPER_ADMIN"), requireCsrf, async (req:AuthRequest,res,next) => { try {
   const d=adminProduct.parse(req.body);
   const result=await query("INSERT INTO products (name,slug,brand,price_cents,engine_power_hp,transmission_type,condition,stock_status,price_source,price_checked_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *",[d.name,d.slug,d.brand,d.priceCents,d.enginePowerHp,d.transmissionType,d.condition,d.stockStatus,d.priceSource,d.priceCheckedAt]);
   res.status(201).json(result.rows[0]);
 } catch(error) { next(error); } });
 
-catalogRouter.patch("/:id/archive", authenticate, authorize("DEALER_ADMIN","SUPER_ADMIN"), async (req:AuthRequest,res,next) => { try {
+catalogRouter.patch("/:id/archive", authenticate, authorize("DEALER_ADMIN","SUPER_ADMIN"), requireCsrf, async (req:AuthRequest,res,next) => { try {
   const id=z.string().uuid().parse(req.params.id);
   const result=await query("UPDATE products SET archived_at=now(),is_active=false,updated_at=now() WHERE id=$1 RETURNING id",[id]);
   if(!result.rows[0]) return res.status(404).json({error:"Produit introuvable"});

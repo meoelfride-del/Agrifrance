@@ -6,11 +6,13 @@ import { AppShell } from "@/src/components/AppShell";
 import { ImageGallery } from "@/src/components/ImageGallery";
 import { ProductGrid } from "@/src/components/ProductGrid";
 import { useCart } from "@/src/context/CartContext";
-import { INDICATIVE_PRICE_NOTICE, products } from "@/src/data/products";
+import { INDICATIVE_PRICE_NOTICE } from "@/src/data/products";
+import { useProductCatalog } from "@/src/context/ProductCatalogContext";
 import type { Product } from "@/src/types/product";
 import { formatPrice, whatsappUrl } from "@/src/utils/format";
 
 export function ProductPage({ product }: { product: Product }) {
+  const products = useProductCatalog();
   const { t, i18n } = useTranslation();
   const { addItem } = useCart();
   const similar = products.filter((item) => item.categorySlug === product.categorySlug && item.id !== product.id).slice(0,4);

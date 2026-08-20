@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { productById } from "@/src/data/products";
+import { useProductCatalog } from "@/src/context/ProductCatalogContext";
 
 const FAVORITES_KEY = "agrifrance-favorites-v1";
 const COMPARE_KEY = "agrifrance-compare-v1";
@@ -16,6 +16,7 @@ type PreferenceContextValue = {
 const PreferenceContext = createContext<PreferenceContextValue | null>(null);
 
 export function PreferenceProvider({ children }: { children: ReactNode }) {
+  const products = useProductCatalog();
   const [favorites, setFavorites] = useState<string[]>([]);
   const [compared, setCompared] = useState<string[]>([]);
   const [ready, setReady] = useState(false);
@@ -25,7 +26,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
       const parse = (key: string) => {
         try {
           const value = JSON.parse(localStorage.getItem(key) ?? "[]") as unknown;
-          return Array.isArray(value) ? value.filter((id): id is string => typeof id === "string" && Boolean(productById(id))) : [];
+          return Array.isArray(value) ? value.filter((id): id is string => typeof id === "string" && products.some((product) => product.id === id)) : [];
         } catch { return []; }
       };
       setFavorites(parse(FAVORITES_KEY));
@@ -33,7 +34,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
       setReady(true);
     });
     return () => cancelAnimationFrame(frame);
-  }, []);
+  }, [products]);
 
   useEffect(() => { if (ready) localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites)); }, [favorites, ready]);
   useEffect(() => { if (ready) localStorage.setItem(COMPARE_KEY, JSON.stringify(compared)); }, [compared, ready]);

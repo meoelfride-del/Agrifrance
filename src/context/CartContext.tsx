@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { productById } from "@/src/data/products";
+import { useProductCatalog } from "@/src/context/ProductCatalogContext";
 import type { CartItem, Product } from "@/src/types/product";
 
 const STORAGE_KEY = "agrifrance-cart-v1";
@@ -24,6 +24,8 @@ type CartContextValue = {
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
+  const products = useProductCatalog();
+  const productById = useCallback((id:string) => products.find((product) => product.id === id), [products]);
   const [storedItems, setStoredItems] = useState<CartItem[]>([]);
   const [hydrated, setHydrated] = useState(false);
   const [isOpen, setOpen] = useState(false);
@@ -37,7 +39,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       setHydrated(true);
     });
     return () => cancelAnimationFrame(frame);
-  }, []);
+  }, [productById]);
 
   useEffect(() => { if (hydrated) localStorage.setItem(STORAGE_KEY, JSON.stringify(storedItems)); }, [hydrated, storedItems]);
 
@@ -60,7 +62,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const subtotal = items.reduce((sum, item) => sum + (item.product.prix ?? 0) * item.quantity, 0);
     const shipping = subtotal ? Math.max(450, Math.round(subtotal * 0.025)) : 0;
     return { items, count, subtotal, shipping, total: subtotal + shipping, isOpen, setOpen, addItem, removeItem, updateQuantity, clear };
-  }, [addItem, clear, isOpen, removeItem, storedItems, updateQuantity]);
+  }, [addItem, clear, isOpen, productById, removeItem, storedItems, updateQuantity]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
